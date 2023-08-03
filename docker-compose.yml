@@ -1,0 +1,37 @@
+version: '3.7'
+
+services:
+
+  api_app_management:
+    build:
+      context: ./api_management
+      dockerfile: Dockerfile
+    image: api_app_management
+    container_name: api_app_management
+    ports:
+      - 5000:5000
+    volumes:
+      - app-volume:/usr/src/app
+    environment:
+      - FLASK_DEBUG=1
+    depends_on:
+      - redis1
+
+  redis1:
+    image: redis:6-alpine
+    container_name: local_redis
+    ports:
+      - 6379:6379
+
+  dashboard:
+    image: sad123/dashboard:v1
+    container_name: dashboard
+    ports:
+      - 9181:9181
+    command: rq-dashboard -H redis1
+    depends_on:
+      - redis1
+
+volumes:
+  app-volume:
+    name: app-volume-001
